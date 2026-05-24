@@ -12,23 +12,32 @@ function App() {
     };
 
     return (
-        <div
-            className={cn(
-                "grid grid-rows-[auto_1fr] h-screen grid-cols-[1fr_6fr] overflow-hidden",
-            )}>
-            <div className='col-span-2 z-50'>
+        <div className='flex flex-col h-screen overflow-hidden'>
+            <div className='z-50 bg-white shrink-0'>
                 <Topbar toggleSidebar={toggleSidebar} />
             </div>
-            <div
-                className={cn(
-                    showSidebarOnMobile ? "block" : "hidden",
-                    "sm:block overflow-y-auto",
-                )}>
-                <Sidebar />
-            </div>
-            <div
-                className={`${showSidebarOnMobile ? "col-span-1" : "col-span-2 sm:col-span-1"} overflow-y-auto`}>
-                <StreamList />
+
+            <div className='flex flex-1 relative overflow-hidden'>
+                <div
+                    className={cn(
+                        "absolute sm:relative z-40 h-full bg-white transition-transform duration-200 border-r border-gray-300",
+                        showSidebarOnMobile
+                            ? "translate-x-0 shadow-2xl"
+                            : "-translate-x-full sm:translate-x-0",
+                    )}>
+                    <Sidebar />
+                </div>
+
+                {showSidebarOnMobile && (
+                    <div
+                        className='absolute inset-0 bg-black/20 z-30 sm:hidden'
+                        onClick={toggleSidebar}
+                    />
+                )}
+
+                <div className='flex-1 overflow-y-auto w-full'>
+                    <StreamList />
+                </div>
             </div>
         </div>
     );
