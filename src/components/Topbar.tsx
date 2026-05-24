@@ -6,18 +6,18 @@ import {
     mdiClose,
     mdiMenu,
 } from "@mdi/js";
-import { buttonStylesBase } from "./styles/styles";
+import { buttonStylesBase } from "../styles/styles";
 import { cn } from "../utils/utils";
 
-function Topbar() {
+function Topbar({ toggleSidebar }: { toggleSidebar: () => void }) {
     const [isMobileSearchActive, setIsMobileSearchActive] = useState(false);
 
     return (
-        <div className='flex px-4 py-2 gap-4 items-center border-b border-gray-300'>
+        <div className='flex px-4 py-2 gap-4 items-center border-b border-gray-300 w-full'>
             {/* Hidden on mobile when searching, always flex on 'sm' screens and up */}
             <div
                 className={`flex items-center gap-2 ${isMobileSearchActive ? "hidden sm:flex" : "flex"}`}>
-                <button type='button' className={cn(buttonStylesBase, "sm:hidden")}>
+                <button type='button' className={cn(buttonStylesBase, "sm:hidden")} onClick={toggleSidebar} aria-label='Toggle sidebar'>
                     <Icon path={mdiMenu} size={1} />
                 </button>
                 <div
