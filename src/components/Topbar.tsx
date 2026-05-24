@@ -1,6 +1,13 @@
 import { useState } from "react";
 import { Icon } from "@mdi/react";
-import { mdiMagnify, mdiAccountCircleOutline, mdiClose } from "@mdi/js";
+import {
+    mdiMagnify,
+    mdiAccountCircleOutline,
+    mdiClose,
+    mdiMenu,
+} from "@mdi/js";
+import { buttonStylesBase } from "./styles/styles";
+import { cn } from "../utils/utils";
 
 function Topbar() {
     const [isMobileSearchActive, setIsMobileSearchActive] = useState(false);
@@ -9,10 +16,16 @@ function Topbar() {
         <div className='flex px-4 py-2 gap-4 items-center border-b border-gray-300'>
             {/* Hidden on mobile when searching, always flex on 'sm' screens and up */}
             <div
-                className={`items-center gap-2 ${isMobileSearchActive ? "hidden sm:flex" : "flex"}`}>
-                <p className='text-md sm:text-xl md:text-2xl font-bold whitespace-nowrap tracking-tight'>
-                    HoloSummary
-                </p>
+                className={`flex items-center gap-2 ${isMobileSearchActive ? "hidden sm:flex" : "flex"}`}>
+                <button type='button' className={cn(buttonStylesBase, "sm:hidden")}>
+                    <Icon path={mdiMenu} size={1} />
+                </button>
+                <div
+                    className={`items-center gap-2 ${isMobileSearchActive ? "hidden sm:flex" : "flex"}`}>
+                    <p className='text-md sm:text-xl sm:pl-1.5 md:text-2xl font-bold whitespace-nowrap tracking-tight'>
+                        HoloSummary
+                    </p>
+                </div>
             </div>
 
             <div className='flex-1 flex justify-end sm:justify-center gap-2'>
@@ -28,7 +41,7 @@ function Topbar() {
                 {/* Toggles the state when clicked */}
                 <button
                     type='button'
-                    className='hover:bg-gray-200 rounded-md cursor-pointer active:bg-gray-300 shrink-0 sm:hidden focus:outline-none flex items-center justify-center p-1'
+                    className={cn(buttonStylesBase, "sm:hidden")}
                     onClick={() =>
                         setIsMobileSearchActive(!isMobileSearchActive)
                     }
@@ -38,22 +51,27 @@ function Topbar() {
                         size={1.5}
                     />
                 </button>
-                
+
                 {/* Desktop static magnify icon (doesn't toggle state) */}
-                <Icon
-                    className='hover:bg-gray-200 rounded-md cursor-pointer active:bg-gray-300 shrink-0 hidden sm:block'
-                    path={mdiMagnify}
-                    size={1.5}
-                />
+                <button
+                    type='button'
+                    className={cn(buttonStylesBase, "hidden sm:block")}>
+                    <Icon path={mdiMagnify} size={1.5} />
+                </button>
             </div>
 
             {/* Hidden on mobile when searching to give the input field maximum space */}
-            <Icon
-                className={`hover:bg-gray-200 rounded-md cursor-pointer active:bg-gray-300 shrink-0 
-                ${isMobileSearchActive ? "hidden sm:block" : "block"}`}
-                path={mdiAccountCircleOutline}
-                size={1.5}
-            />
+            <button
+                type='button'
+                className={cn(
+                    buttonStylesBase,
+                    isMobileSearchActive ? "hidden sm:block" : "block",
+                )}>
+                <Icon
+                    path={mdiAccountCircleOutline}
+                    size={1.5}
+                />
+            </button>
         </div>
     );
 }
