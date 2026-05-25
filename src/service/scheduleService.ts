@@ -1,7 +1,6 @@
-import axios from "axios";
 import { VideoStreamPageSchema } from "../types";
+import { apiClient } from "../utils/apiClient";
 
-const baseUrl = "/api/schedule";
 
 const getSchedule = async (
     status: "live" | "upcoming" | "past",
@@ -10,19 +9,13 @@ const getSchedule = async (
     pageSize: number = 25,
     pageNumber: number = 0,
 ) => {
-    const response = await axios
-        .get(baseUrl, {
-            params: {
-                status,
-                sortBy,
-                sortOrder,
-                pageSize,
-                pageNumber,
-            },
+    const response = await apiClient
+        .get("/schedule", {
+            params: { status, sortBy, sortOrder, pageSize, pageNumber },
         })
-        .catch((error) => {
+        .catch((error: unknown) => {
             console.error(`Error fetching ${status} schedule:`, error);
-            return { data: [] }; // Return empty array on error to prevent crashes
+            return { data: [] };
         });
 
     return VideoStreamPageSchema.parse(response.data).content || [];
