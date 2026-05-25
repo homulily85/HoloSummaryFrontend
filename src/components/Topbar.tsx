@@ -9,12 +9,18 @@ import {
 import { buttonStylesBase } from "../styles/styles";
 import { cn } from "../utils/utils";
 
-function Topbar({ toggleSidebar }: { toggleSidebar: () => void }) {
+interface TopbarProps {
+    toggleSidebar: () => void;
+    onProfileClick?: () => void;
+    isAuthenticated: boolean | null;
+    avatarUrl?: string | null;
+}
+
+function Topbar({ toggleSidebar, onProfileClick, isAuthenticated, avatarUrl }: TopbarProps) {
     const [isMobileSearchActive, setIsMobileSearchActive] = useState(false);
 
     return (
         <div className='flex px-4 py-2 gap-4 items-center border-b border-gray-300 w-full'>
-            {/* Hidden on mobile when searching, always flex on 'sm' screens and up */}
             <div
                 className={`flex items-center gap-2 ${isMobileSearchActive ? "hidden sm:flex" : "flex"}`}>
                 <button type='button' className={cn(buttonStylesBase, "sm:hidden")} onClick={toggleSidebar} aria-label='Toggle sidebar'>
@@ -29,7 +35,6 @@ function Topbar({ toggleSidebar }: { toggleSidebar: () => void }) {
             </div>
 
             <div className='flex-1 flex justify-end sm:justify-center gap-2'>
-                {/* Visible if mobile search is active, otherwise hidden on mobile and visible on 'sm' and up */}
                 <input
                     className={`w-full sm:max-w-sm md:max-w-md lg:max-w-lg px-3 py-1.5 border border-gray-400 rounded-md focus:outline-none transition-all
                     ${isMobileSearchActive ? "block" : "hidden sm:block"}`}
@@ -38,7 +43,6 @@ function Topbar({ toggleSidebar }: { toggleSidebar: () => void }) {
                     autoComplete='off'
                 />
 
-                {/* Toggles the state when clicked */}
                 <button
                     type='button'
                     className={cn(buttonStylesBase, "sm:hidden")}
@@ -52,7 +56,6 @@ function Topbar({ toggleSidebar }: { toggleSidebar: () => void }) {
                     />
                 </button>
 
-                {/* Desktop static magnify icon (doesn't toggle state) */}
                 <button
                     type='button'
                     className={cn(buttonStylesBase, "hidden sm:block")}>
@@ -60,17 +63,27 @@ function Topbar({ toggleSidebar }: { toggleSidebar: () => void }) {
                 </button>
             </div>
 
-            {/* Hidden on mobile when searching to give the input field maximum space */}
             <button
                 type='button'
+                // Disable click behavior if logged in
+                onClick={isAuthenticated ? undefined : onProfileClick}
                 className={cn(
                     buttonStylesBase,
                     isMobileSearchActive ? "hidden sm:block" : "block",
+                    isAuthenticated ? "cursor-default hover:bg-transparent active:bg-transparent text-gray-800" : ""
                 )}>
-                <Icon
-                    path={mdiAccountCircleOutline}
-                    size={1.5}
-                />
+                {isAuthenticated && avatarUrl ? (
+                    <img 
+                        src={avatarUrl} 
+                        alt="Profile" 
+                        className="w-[24px] h-[24px] rounded-full object-cover" 
+                    />
+                ) : (
+                    <Icon
+                        path={mdiAccountCircleOutline}
+                        size={1.5}
+                    />
+                )}
             </button>
         </div>
     );

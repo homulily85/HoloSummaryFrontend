@@ -1,15 +1,23 @@
 import { Icon } from "@mdi/react";
-import { mdiHomeVariantOutline, mdiHeart } from "@mdi/js";
+import { mdiHomeVariantOutline, mdiHeart, mdiLogout } from "@mdi/js";
 import { buttonStylesBase } from "../styles/styles";
 import { cn } from "../utils/utils";
 
-function Sidebar() {
+interface SidebarProps {
+    onHomeClick?: () => void;
+    onLogoutClick?: () => void;
+    isAuthenticated?: boolean | null;
+}
+
+function Sidebar({ onHomeClick, onLogoutClick, isAuthenticated }: SidebarProps) {
     return (
-        <div className='p-4 border-r border-gray-300 h-full'>
+        // Changed to flex-col with justify-between to push the logout button to the bottom
+        <div className='p-4 border-r border-gray-300 h-full flex flex-col justify-between'>
             <ul className='flex flex-col gap-2 sm:text-base font-medium'>
                 <li>
                     <button
                         type='button'
+                        onClick={onHomeClick}
                         className={cn(
                             buttonStylesBase,
                             "w-full justify-center sm:justify-start",
@@ -30,6 +38,23 @@ function Sidebar() {
                     </button>
                 </li>
             </ul>
+
+            {isAuthenticated && (
+                <ul className='flex flex-col gap-2 sm:text-base font-medium mb-4'>
+                    <li>
+                        <button
+                            type='button'
+                            onClick={onLogoutClick}
+                            className={cn(
+                                buttonStylesBase,
+                                "w-full justify-center sm:justify-start text-red-600 hover:bg-red-50 active:bg-red-100 hover:text-red-700",
+                            )}>
+                            <Icon path={mdiLogout} size={1} />
+                            <p className='hidden sm:block'>Logout</p>
+                        </button>
+                    </li>
+                </ul>
+            )}
         </div>
     );
 }

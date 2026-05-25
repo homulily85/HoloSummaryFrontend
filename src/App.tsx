@@ -1,17 +1,18 @@
 import { useCallback, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import Sidebar from "./components/Sidebar";
 import StreamList from "./components/StreamList";
 import Topbar from "./components/Topbar";
+import Login from "./components/Login";
 import { setAccessToken } from "./utils/apiClient";
 import { cn } from "./utils/utils";
+import axios from "axios";
 
 function App() {
     const [showSidebarOnMobile, setShowSidebar] = useState(false);
-    const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(
-        null,
-    );
+    const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+    const [showLogin, setShowLogin] = useState(false);
+    const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
     const navigate = useNavigate();
 
     const toggleSidebar = useCallback(() => {
@@ -19,32 +20,40 @@ function App() {
     }, []);
 
     useEffect(() => {
-        // Use base axios to bypass the interceptor's retry logic
-        axios
-            .post("/api/auth/refresh", {}, { withCredentials: true })
-            .then((response) => {
+        axios.post("/api/auth/refresh", {}, { withCredentials: true })
+            .then(response => {
                 setAccessToken(response.data.accessToken);
                 setIsAuthenticated(true);
+                
+                setAvatarUrl(response.data.pictureUrl); 
             })
             .catch(() => {
                 setIsAuthenticated(false);
-                navigate("/login", { replace: true }); // This safely handles the redirect!
             });
     }, [navigate]);
 
-    // Show a blank or loading screen while checking auth status
+    const handleLogout = useCallback(() => {
+        // Clear token from memory
+        setAccessToken(null);
+        setIsAuthenticated(false);
+        setShowLogin(true); 
+        setShowSidebar(false);
+        axios.post("/api/auth/logout", {}, { withCredentials: true });
+    }, []);
+
     if (isAuthenticated === null) {
-        return (
-            <div className='flex h-screen items-center justify-center'>
-                Loading...
-            </div>
-        );
+        return <div className="flex h-screen items-center justify-center">Loading...</div>;
     }
 
     return (
         <div className='flex flex-col h-screen overflow-hidden'>
             <div className='z-50 bg-white shrink-0'>
-                <Topbar toggleSidebar={toggleSidebar} />
+                <Topbar 
+                    toggleSidebar={toggleSidebar} 
+                    onProfileClick={() => setShowLogin(true)}
+                    isAuthenticated={isAuthenticated}
+                    avatarUrl={avatarUrl}
+                />
             </div>
 
             <div className='flex flex-1 relative overflow-hidden'>
@@ -55,7 +64,14 @@ function App() {
                             ? "translate-x-0 shadow-2xl"
                             : "-translate-x-full sm:translate-x-0",
                     )}>
-                    <Sidebar />
+                    <Sidebar 
+                        onHomeClick={() => {
+                            setShowLogin(false);
+                            setShowSidebar(false);
+                        }}
+                        onLogoutClick={handleLogout}
+                        isAuthenticated={isAuthenticated}
+                    />
                 </div>
 
                 {showSidebarOnMobile && (
@@ -66,7 +82,7 @@ function App() {
                 )}
 
                 <div className='flex-1 overflow-y-auto w-full'>
-                    <StreamList />
+                    {showLogin ? <Login /> : <StreamList />}
                 </div>
             </div>
         </div>
