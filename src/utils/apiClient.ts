@@ -34,7 +34,7 @@ apiClient.interceptors.response.use(
             originalRequest._retry = true;
 
             try {
-                // Call the backend refresh endpoint defined in AuthController.java
+                // Call the backend refresh endpoint
                 const response = await axios.post(
                     "/auth/refresh",
                     {},
@@ -47,7 +47,6 @@ apiClient.interceptors.response.use(
                 // Update the failed request with the new token and retry
                 originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
                 return apiClient(originalRequest);
-                // src/utils/apiClient.ts
             } catch (refreshError) {
                 // Refresh token is expired or invalid. Require re-login.
                 setAccessToken(null);

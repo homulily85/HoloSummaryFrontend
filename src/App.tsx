@@ -9,14 +9,14 @@ import { cn } from "./utils/utils";
 import axios from "axios";
 
 function App() {
-    const [showSidebarOnMobile, setShowSidebar] = useState(false);
+    const [showSidebarOnMobile, setShowSidebarOnMobile] = useState(false);
     const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
     const [showLogin, setShowLogin] = useState(false);
     const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
     const navigate = useNavigate();
 
     const toggleSidebar = useCallback(() => {
-        setShowSidebar((prev) => !prev);
+        setShowSidebarOnMobile((prev) => !prev);
     }, []);
 
     useEffect(() => {
@@ -37,7 +37,7 @@ function App() {
         setAccessToken(null);
         setIsAuthenticated(false);
         setShowLogin(true); 
-        setShowSidebar(false);
+        setShowSidebarOnMobile(false);
         axios.post("/api/auth/logout", {}, { withCredentials: true });
     }, []);
 
@@ -67,7 +67,7 @@ function App() {
                     <Sidebar 
                         onHomeClick={() => {
                             setShowLogin(false);
-                            setShowSidebar(false);
+                            setShowSidebarOnMobile(false);
                         }}
                         onLogoutClick={handleLogout}
                         isAuthenticated={isAuthenticated}

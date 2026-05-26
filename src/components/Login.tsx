@@ -1,6 +1,5 @@
 function Login() {
     return (
-        // Changed h-screen to h-full
         <div className="flex flex-col items-center justify-center h-full bg-gray-50">
             <h2 className="text-4xl font-bold mb-6 text-center">Welcome to HoloSummary</h2>
             <a 

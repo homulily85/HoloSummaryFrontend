@@ -11,7 +11,6 @@ interface SidebarProps {
 
 function Sidebar({ onHomeClick, onLogoutClick, isAuthenticated }: SidebarProps) {
     return (
-        // Changed to flex-col with justify-between to push the logout button to the bottom
         <div className='p-4 border-r border-gray-300 h-full flex flex-col justify-between'>
             <ul className='flex flex-col gap-2 sm:text-base font-medium'>
                 <li>
