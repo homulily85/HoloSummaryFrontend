@@ -23,35 +23,60 @@ apiClient.interceptors.request.use(
     (error) => Promise.reject(error),
 );
 
+let isRefreshing = false;
+let failedQueue: { resolve: (token: string | null) => void; reject: (error: unknown) => void }[] = [];
+
+const processQueue = (error: unknown, token: string | null = null) => {
+    failedQueue.forEach((prom) => {
+        if (error) {
+            prom.reject(error);
+        } else {
+            prom.resolve(token);
+        }
+    });
+    failedQueue = [];
+};
+
 // Response Interceptor: Handle 401 Unauthorized & Refresh Token
 apiClient.interceptors.response.use(
     (response) => response,
     async (error) => {
         const originalRequest = error.config;
-
-        // If the error is 401 and we haven't retried yet
         if (error.response?.status === 401 && !originalRequest._retry) {
+            if (isRefreshing) {
+                // If already refreshing, wait for it to finish
+                return new Promise((resolve, reject) => {
+                    failedQueue.push({ resolve, reject });
+                })
+                    .then((token) => {
+                        originalRequest.headers.Authorization =
+                            "Bearer " + token;
+                        return apiClient(originalRequest);
+                    })
+                    .catch((err) => Promise.reject(err));
+            }
+
             originalRequest._retry = true;
+            isRefreshing = true;
 
             try {
-                // Call the backend refresh endpoint
                 const response = await axios.post(
-                    "/auth/refresh",
+                    "/api/auth/refresh",
                     {},
-                    { withCredentials: true }, // Sends the refresh_token cookie
+                    { withCredentials: true },
                 );
-
                 const newAccessToken = response.data.accessToken;
                 setAccessToken(newAccessToken);
 
-                // Update the failed request with the new token and retry
+                processQueue(null, newAccessToken); // Resolve pending requests
                 originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
                 return apiClient(originalRequest);
             } catch (refreshError) {
-                // Refresh token is expired or invalid. Require re-login.
+                processQueue(refreshError, null); // Reject pending requests
                 setAccessToken(null);
-
                 return Promise.reject(refreshError);
+            } finally {
+                isRefreshing = false;
             }
         }
         return Promise.reject(error);

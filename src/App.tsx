@@ -1,5 +1,5 @@
 import { useCallback, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Routes, Route, Navigate } from "react-router-dom";
 import Sidebar from "./components/Sidebar";
 import StreamList from "./components/StreamList";
 import Topbar from "./components/Topbar";
@@ -11,8 +11,7 @@ import axios from "axios";
 function App() {
     const [showSidebarOnMobile, setShowSidebarOnMobile] = useState(false);
     const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-    const [showLogin, setShowLogin] = useState(false);
-    const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
+    const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
     const navigate = useNavigate();
 
     const toggleSidebar = useCallback(() => {
@@ -24,22 +23,20 @@ function App() {
             .then(response => {
                 setAccessToken(response.data.accessToken);
                 setIsAuthenticated(true);
-                
                 setAvatarUrl(response.data.pictureUrl); 
             })
             .catch(() => {
                 setIsAuthenticated(false);
             });
-    }, [navigate]);
+    }, []);
 
     const handleLogout = useCallback(() => {
-        // Clear token from memory
         setAccessToken(null);
         setIsAuthenticated(false);
-        setShowLogin(true); 
+        navigate("/login"); 
         setShowSidebarOnMobile(false);
         axios.post("/api/auth/logout", {}, { withCredentials: true });
-    }, []);
+    }, [navigate]);
 
     if (isAuthenticated === null) {
         return <div className="flex h-screen items-center justify-center">Loading...</div>;
@@ -50,7 +47,7 @@ function App() {
             <div className='z-50 bg-white shrink-0'>
                 <Topbar 
                     toggleSidebar={toggleSidebar} 
-                    onProfileClick={() => setShowLogin(true)}
+                    onProfileClick={() => navigate("/login")}
                     isAuthenticated={isAuthenticated}
                     avatarUrl={avatarUrl}
                 />
@@ -66,10 +63,14 @@ function App() {
                     )}>
                     <Sidebar 
                         onHomeClick={() => {
-                            setShowLogin(false);
+                            navigate("/home");
                             setShowSidebarOnMobile(false);
                         }}
-                        onLogoutClick={handleLogout}
+                        onLogoutClick={()=>{
+                            handleLogout();
+                            setShowSidebarOnMobile(false);
+                            navigate("/home");
+                        }}
                         isAuthenticated={isAuthenticated}
                     />
                 </div>
@@ -82,10 +83,15 @@ function App() {
                 )}
 
                 <div className='flex-1 overflow-y-auto w-full'>
-                    {showLogin ? <Login /> : <StreamList />}
+                    <Routes>
+                        <Route path="/home" element={<StreamList />} />
+                        <Route path="/login" element={<Login />} />
+                        <Route path="*" element={<Navigate to="/home" replace />} />
+                    </Routes>
                 </div>
             </div>
         </div>
     );
 }
+
 export default App;
