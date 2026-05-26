@@ -1,6 +1,5 @@
-import { VideoStreamPageSchema } from "../types";
+import { VideoStreamPageSchema, VideoStreamSchema } from "../types";
 import { apiClient } from "../utils/apiClient";
-
 
 const getSchedule = async (
     status: "live" | "upcoming" | "past",
@@ -21,6 +20,18 @@ const getSchedule = async (
     return VideoStreamPageSchema.parse(response.data).content || [];
 };
 
+const getVideoById = async (id: string) => {
+    const response = await apiClient
+        .get(`/schedule/${id}`)
+        .catch((error: unknown) => {
+            console.error(`Error fetching video with id ${id}:`, error);
+            return { data: null };
+        });
+
+    return response.data ? VideoStreamSchema.parse(response.data) : null;
+};
+
 export const scheduleService = {
     getSchedule,
+    getVideoById,
 };

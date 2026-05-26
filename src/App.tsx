@@ -7,10 +7,13 @@ import Login from "./components/Login";
 import { setAccessToken } from "./utils/apiClient";
 import { cn } from "./utils/utils";
 import axios from "axios";
+import StreamDetail from "./components/StreamDetail";
 
 function App() {
     const [showSidebarOnMobile, setShowSidebarOnMobile] = useState(false);
-    const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+    const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(
+        null,
+    );
     const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
     const navigate = useNavigate();
 
@@ -19,11 +22,12 @@ function App() {
     }, []);
 
     useEffect(() => {
-        axios.post("/api/auth/refresh", {}, { withCredentials: true })
-            .then(response => {
+        axios
+            .post("/api/auth/refresh", {}, { withCredentials: true })
+            .then((response) => {
                 setAccessToken(response.data.accessToken);
                 setIsAuthenticated(true);
-                setAvatarUrl(response.data.pictureUrl); 
+                setAvatarUrl(response.data.pictureUrl);
             })
             .catch(() => {
                 setIsAuthenticated(false);
@@ -33,20 +37,24 @@ function App() {
     const handleLogout = useCallback(() => {
         setAccessToken(null);
         setIsAuthenticated(false);
-        navigate("/login"); 
+        navigate("/login");
         setShowSidebarOnMobile(false);
         axios.post("/api/auth/logout", {}, { withCredentials: true });
     }, [navigate]);
 
     if (isAuthenticated === null) {
-        return <div className="flex h-screen items-center justify-center">Loading...</div>;
+        return (
+            <div className='flex h-screen items-center justify-center'>
+                Loading...
+            </div>
+        );
     }
 
     return (
         <div className='flex flex-col h-screen overflow-hidden'>
             <div className='z-50 bg-white shrink-0'>
-                <Topbar 
-                    toggleSidebar={toggleSidebar} 
+                <Topbar
+                    toggleSidebar={toggleSidebar}
                     onProfileClick={() => navigate("/login")}
                     isAuthenticated={isAuthenticated}
                     avatarUrl={avatarUrl}
@@ -61,12 +69,12 @@ function App() {
                             ? "translate-x-0 shadow-2xl"
                             : "-translate-x-full sm:translate-x-0",
                     )}>
-                    <Sidebar 
+                    <Sidebar
                         onHomeClick={() => {
                             navigate("/home");
                             setShowSidebarOnMobile(false);
                         }}
-                        onLogoutClick={()=>{
+                        onLogoutClick={() => {
                             handleLogout();
                             setShowSidebarOnMobile(false);
                             navigate("/home");
@@ -84,9 +92,20 @@ function App() {
 
                 <div className='flex-1 overflow-y-auto w-full'>
                     <Routes>
-                        <Route path="/home" element={<StreamList />} />
-                        <Route path="/login" element={<Login />} />
-                        <Route path="*" element={<Navigate to="/home" replace />} />
+                        {/* Pass isAuthenticated down to StreamList */}
+                        <Route
+                            path='/home'
+                            element={
+                                <StreamList isAuthenticated={isAuthenticated} />
+                            }
+                        />
+                        <Route path='/login' element={<Login />} />
+                        {/* Add the new route for the stream details */}
+                        <Route path='/stream/:id' element={<StreamDetail />} />
+                        <Route
+                            path='*'
+                            element={<Navigate to='/home' replace />}
+                        />
                     </Routes>
                 </div>
             </div>
