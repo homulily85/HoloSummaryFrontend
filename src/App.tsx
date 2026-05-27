@@ -99,7 +99,14 @@ function App() {
                                 <StreamList isAuthenticated={isAuthenticated} />
                             }
                         />
+                        (isAuthenticated ? (
+                        <Route
+                            path='/login'
+                            element={<Navigate to='/home' />}
+                        />
+                        ) : (
                         <Route path='/login' element={<Login />} />
+                        ))
                         {/* Add the new route for the stream details */}
                         <Route path='/stream/:id' element={<StreamDetail />} />
                         <Route
