@@ -28,6 +28,7 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USERNAME }}
           key: ${{ secrets.SERVER_SSH_KEY }}
-          source: "dist/*"
+          source: "dist"
           target: "/var/www/holosummary/frontend/"
           strip_components: 1 # Prevents creating an extra 'dist' folder inside the target
+          rm: true
