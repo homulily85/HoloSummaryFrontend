@@ -6,7 +6,7 @@ import {
     mdiClose,
     mdiMenu,
 } from "@mdi/js";
-import { buttonStylesBase } from "../styles/styles";
+import { buttonStylesPrimaryTheme } from "../styles/styles";
 import { cn } from "../utils/utils";
 
 interface TopbarProps {
@@ -23,7 +23,7 @@ function Topbar({ toggleSidebar, onProfileClick, isAuthenticated, avatarUrl }: T
         <div className='flex px-4 py-2 gap-4 items-center border-b border-gray-300 w-full'>
             <div
                 className={`flex items-center gap-2 ${isMobileSearchActive ? "hidden sm:flex" : "flex"}`}>
-                <button type='button' className={cn(buttonStylesBase, "sm:hidden")} onClick={toggleSidebar} aria-label='Toggle sidebar'>
+                <button type='button' className={cn(buttonStylesPrimaryTheme, "sm:hidden")} onClick={toggleSidebar} aria-label='Toggle sidebar'>
                     <Icon path={mdiMenu} size={1} />
                 </button>
                 <div
@@ -45,7 +45,7 @@ function Topbar({ toggleSidebar, onProfileClick, isAuthenticated, avatarUrl }: T
 
                 <button
                     type='button'
-                    className={cn(buttonStylesBase, "sm:hidden")}
+                    className={cn(buttonStylesPrimaryTheme, "sm:hidden")}
                     onClick={() =>
                         setIsMobileSearchActive(!isMobileSearchActive)
                     }
@@ -58,7 +58,7 @@ function Topbar({ toggleSidebar, onProfileClick, isAuthenticated, avatarUrl }: T
 
                 <button
                     type='button'
-                    className={cn(buttonStylesBase, "hidden sm:block")}>
+                    className={cn(buttonStylesPrimaryTheme, "hidden sm:block")}>
                     <Icon path={mdiMagnify} size={1.5} />
                 </button>
             </div>
@@ -68,7 +68,7 @@ function Topbar({ toggleSidebar, onProfileClick, isAuthenticated, avatarUrl }: T
                 // Disable click behavior if logged in
                 onClick={isAuthenticated ? undefined : onProfileClick}
                 className={cn(
-                    buttonStylesBase,
+                    buttonStylesPrimaryTheme,
                     isMobileSearchActive ? "hidden sm:block" : "block",
                     isAuthenticated ? "cursor-default hover:bg-transparent active:bg-transparent text-gray-800" : ""
                 )}>

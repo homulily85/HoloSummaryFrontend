@@ -3,12 +3,16 @@ import { useParams } from "react-router-dom";
 import Markdown from "react-markdown";
 import type { VideoStream } from "../types";
 import { scheduleService } from "../service/scheduleService";
-import { toHumanReadableDuration } from "../utils/utils";
+import { cn, toHumanReadableDuration } from "../utils/utils";
 import { summaryService } from "../service/summaryService";
+import { buttonStylesBase } from "../styles/styles";
+import { Icon } from "@mdi/react";
+import { mdiHeart, mdiHeartOutline } from "@mdi/js";
 
 function StreamDetail() {
     const [video, setVideo] = useState<VideoStream | null>(null);
     const [summary, setSummary] = useState<string | null>(null);
+    const [isFavorited, setIsFavorited] = useState(false);
     const { id } = useParams();
     const videoId = id ?? "";
 
@@ -43,8 +47,38 @@ function StreamDetail() {
                 allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'
                 referrerPolicy='strict-origin-when-cross-origin'
                 allowFullScreen></iframe>
-            <h2 className='text-3xl font-bold mt-4'>{video?.title}</h2>
-            <p className='text-lg text-gray-600 mt-2'>{`By ${video.channel.englishName || video.channel.name}`}</p>
+            <h2 className='text-3xl font-bold mt-4 gap-4'>{video?.title}</h2>
+            <div className='flex items-center gap-2'>
+                <a
+                    href={`https://www.youtube.com/channel/${video.channel.id}`}
+                    target='_blank'
+                    rel='noopener noreferrer'
+                    className={`${cn("inline-flex w-fit items-center gap-2 p-1.5 text-gray-600", buttonStylesBase)}`}>
+                    <img
+                        className='w-10 h-10 rounded-full mr-2'
+                        src={video.channel.photo}
+                        alt={video.channel.englishName || video.channel.name}
+                    />
+                    <p className='text-lg text-gray-600'>{`${video.channel.englishName || video.channel.name}`}</p>
+                </a>
+                <button
+                    className={`${cn(buttonStylesBase, "shrink-0")}`}
+                    onClick={() => setIsFavorited(!isFavorited)}>
+                    {isFavorited ? (
+                        <Icon
+                            path={mdiHeartOutline}
+                            size={1}
+                            className='text-red-500'
+                        />
+                    ) : (
+                        <Icon
+                            path={mdiHeart}
+                            size={1}
+                            className='text-red-500'
+                        />
+                    )}
+                </button>
+            </div>
             <p className='text-sm text-gray-500 mt-1'>
                 {`${
                     video.status === "live"

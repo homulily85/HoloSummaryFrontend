@@ -1,6 +1,6 @@
 import { Icon } from "@mdi/react";
 import { mdiHomeVariantOutline, mdiHeart, mdiLogout } from "@mdi/js";
-import { buttonStylesBase } from "../styles/styles";
+import { buttonStylesPrimaryTheme } from "../styles/styles";
 import { cn } from "../utils/utils";
 
 interface SidebarProps {
@@ -18,7 +18,7 @@ function Sidebar({ onHomeClick, onLogoutClick, isAuthenticated }: SidebarProps) 
                         type='button'
                         onClick={onHomeClick}
                         className={cn(
-                            buttonStylesBase,
+                            buttonStylesPrimaryTheme,
                             "w-full justify-center sm:justify-start",
                         )}>
                         <Icon path={mdiHomeVariantOutline} size={1} />
@@ -29,7 +29,7 @@ function Sidebar({ onHomeClick, onLogoutClick, isAuthenticated }: SidebarProps) 
                     <button
                         type='button'
                         className={cn(
-                            buttonStylesBase,
+                            buttonStylesPrimaryTheme,
                             "w-full justify-center sm:justify-start",
                         )}>
                         <Icon path={mdiHeart} size={1} />
@@ -45,7 +45,7 @@ function Sidebar({ onHomeClick, onLogoutClick, isAuthenticated }: SidebarProps) 
                             type='button'
                             onClick={onLogoutClick}
                             className={cn(
-                                buttonStylesBase,
+                                buttonStylesPrimaryTheme,
                                 "w-full justify-center sm:justify-start text-red-600 hover:bg-red-50 active:bg-red-100 hover:text-red-700",
                             )}>
                             <Icon path={mdiLogout} size={1} />
