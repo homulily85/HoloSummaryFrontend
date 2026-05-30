@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import Markdown from "react-markdown";
 import type { VideoStream } from "../types";
 import { scheduleService } from "../service/scheduleService";
 import { cn, toHumanReadableDuration } from "../utils/utils";
 import { summaryService } from "../service/summaryService";
-import { buttonStylesBase } from "../styles/styles";
+import { buttonStylesBase, buttonStylesPrimaryTheme } from "../styles/styles";
 import { Icon } from "@mdi/react";
 import { mdiHeart, mdiHeartOutline } from "@mdi/js";
 
@@ -13,13 +13,36 @@ function StreamDetail() {
     const [video, setVideo] = useState<VideoStream | null>(null);
     const [summary, setSummary] = useState<string | null>(null);
     const [isFavorited, setIsFavorited] = useState(false);
+    const [showSummary, setShowSummary] = useState(false);
+    const [isFetching, setIsFetching] = useState(false);
+
     const { id } = useParams();
     const videoId = id ?? "";
+    
+    const fetchInProgress = useRef(false);
+
+    const onToogleShowSummary = async () => {
+        setShowSummary((prev) => !prev);
+
+        if (summary || fetchInProgress.current) return;
+
+        fetchInProgress.current = true;
+        setIsFetching(true);
+
+        try {
+            const data = await summaryService.getSummary(videoId);
+            setSummary(data);
+        } catch (error) {
+            console.error("Failed to fetch summary:", error);
+        } finally {
+            fetchInProgress.current = false;
+            setIsFetching(false);
+        }
+    };
 
     useEffect(() => {
         if (!videoId) return;
         scheduleService.getVideoById(videoId).then((data) => setVideo(data));
-        summaryService.getSummary(videoId).then((data) => setSummary(data));
     }, [videoId]);
 
     if (!videoId) {
@@ -48,6 +71,7 @@ function StreamDetail() {
                 referrerPolicy='strict-origin-when-cross-origin'
                 allowFullScreen></iframe>
             <h2 className='text-3xl font-bold mt-4 gap-4'>{video?.title}</h2>
+            
             <div className='flex items-center gap-2'>
                 <a
                     href={`https://www.youtube.com/channel/${video.channel.id}`}
@@ -65,20 +89,13 @@ function StreamDetail() {
                     className={`${cn(buttonStylesBase, "shrink-0")}`}
                     onClick={() => setIsFavorited(!isFavorited)}>
                     {isFavorited ? (
-                        <Icon
-                            path={mdiHeartOutline}
-                            size={1}
-                            className='text-red-500'
-                        />
+                        <Icon path={mdiHeartOutline} size={1} className='text-red-500' />
                     ) : (
-                        <Icon
-                            path={mdiHeart}
-                            size={1}
-                            className='text-red-500'
-                        />
+                        <Icon path={mdiHeart} size={1} className='text-red-500' />
                     )}
                 </button>
             </div>
+            
             <p className='text-sm text-gray-500 mt-1'>
                 {`${
                     video.status === "live"
@@ -91,21 +108,28 @@ function StreamDetail() {
                 }`}
             </p>
 
-            {video.status === "past" && summary && (
+            {video.status === "past" && (
                 <div className='mt-6 p-4 bg-gray-100 rounded-lg'>
-                    <h3 className='text-2xl font-semibold mb-2'>Summary</h3>
-                    <div className='text-gray-700 whitespace-pre-wrap'>
-                        <Markdown>{summary}</Markdown>
+                    <div className='flex items-center justify-between mb-2'>
+                        <h3 className='text-2xl font-semibold'>Summary</h3>
+                        <button
+                            className={`${cn(buttonStylesPrimaryTheme, "shrink-0")}`}
+                            onClick={onToogleShowSummary}>
+                            {showSummary ? "Hide" : "Show"}
+                        </button>
                     </div>
-                </div>
-            )}
-
-            {video.status === "past" && !summary && (
-                <div className='mt-6 p-4 bg-gray-100 rounded-lg'>
-                    <h3 className='text-2xl font-semibold mb-2'>Summary</h3>
-                    <div className='text-gray-700 whitespace-pre-wrap'>
-                        <p>Fetching summary...</p>
-                    </div>
+                    
+                    {showSummary && (
+                        <div className='text-gray-700 whitespace-pre-wrap mt-4'>
+                            {isFetching ? (
+                                <p className="animate-pulse">Fetching summary...</p>
+                            ) : summary ? (
+                                <Markdown>{summary}</Markdown>
+                            ) : (
+                                <p>No summary available.</p>
+                            )}
+                        </div>
+                    )}
                 </div>
             )}
         </div>
