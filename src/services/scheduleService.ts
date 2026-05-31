@@ -14,9 +14,13 @@ const getSchedule = async (
         })
         .catch((error: unknown) => {
             console.error(`Error fetching ${status} schedule:`, error);
-            return { data: [] };
+            return { 
+                data: { 
+                    content: [], 
+                    page: { size: 25, totalElements: 0, totalPages: 0, number: 0 } 
+                } 
+            };
         });
-
     return VideoStreamPageSchema.parse(response.data).content || [];
 };
 

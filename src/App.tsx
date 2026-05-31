@@ -8,6 +8,7 @@ import { setAccessToken } from "./utils/apiClient";
 import { cn } from "./utils/utils";
 import axios from "axios";
 import StreamDetail from "./components/StreamDetail";
+import ChannelList from "./components/ChannelList";
 
 function App() {
     const [showSidebarOnMobile, setShowSidebarOnMobile] = useState(false);
@@ -74,6 +75,10 @@ function App() {
                             navigate("/home");
                             setShowSidebarOnMobile(false);
                         }}
+                        onChannelsClick={() => {
+                            navigate("/channels");
+                            setShowSidebarOnMobile(false);
+                        }}
                         onLogoutClick={() => {
                             handleLogout();
                             setShowSidebarOnMobile(false);
@@ -92,7 +97,6 @@ function App() {
 
                 <div className='flex-1 overflow-y-auto w-full'>
                     <Routes>
-                        {/* Pass isAuthenticated down to StreamList */}
                         <Route
                             path='/home'
                             element={
@@ -109,12 +113,13 @@ function App() {
                             <Route path='/login' element={<Login />} />
                         )}
 
-                        {/* Add the new route for the stream details */}
                         <Route path='/stream/:id' element={<StreamDetail />} />
                         <Route
                             path='*'
                             element={<Navigate to='/home' replace />}
                         />
+
+                        <Route path='/channels' element={<ChannelList />} />
                     </Routes>
                 </div>
             </div>

@@ -1,15 +1,16 @@
 import { Icon } from "@mdi/react";
-import { mdiHomeVariantOutline, mdiHeart, mdiLogout } from "@mdi/js";
+import { mdiHomeVariantOutline, mdiHeart, mdiLogout, mdiAccountGroup } from "@mdi/js";
 import { buttonStylesPrimaryTheme } from "../styles/styles";
 import { cn } from "../utils/utils";
 
 interface SidebarProps {
     onHomeClick?: () => void;
+    onChannelsClick?: () => void;
     onLogoutClick?: () => void;
     isAuthenticated?: boolean | null;
 }
 
-function Sidebar({ onHomeClick, onLogoutClick, isAuthenticated }: SidebarProps) {
+function Sidebar({ onHomeClick, onChannelsClick, onLogoutClick, isAuthenticated }: SidebarProps) {
     return (
         <div className='p-4 border-r border-gray-300 h-full flex flex-col justify-between'>
             <ul className='flex flex-col gap-2 sm:text-base font-medium'>
@@ -36,6 +37,20 @@ function Sidebar({ onHomeClick, onLogoutClick, isAuthenticated }: SidebarProps) 
                         <p className='hidden sm:block'>Favorites</p>
                     </button>
                 </li>
+
+                <li>
+                    <button
+                        type='button'
+                        onClick={onChannelsClick}
+                        className={cn(
+                            buttonStylesPrimaryTheme,
+                            "w-full justify-center sm:justify-start",
+                        )}>
+                        <Icon path={mdiAccountGroup} size={1} />
+                        <p className='hidden sm:block'>Channels</p>
+                    </button>
+                </li>
+
             </ul>
 
             {isAuthenticated && (

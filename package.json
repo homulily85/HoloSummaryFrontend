@@ -16,6 +16,7 @@
     "@tanstack/react-query": "^5.100.14",
     "axios": "^1.16.1",
     "clsx": "^2.1.1",
+    "lodash.debounce": "^4.0.8",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "react-markdown": "^10.1.0",
@@ -26,6 +27,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@types/lodash.debounce": "^4.0.9",
     "@types/node": "^24.12.3",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",

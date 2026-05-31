@@ -1,25 +1,28 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import Markdown from "react-markdown";
-import type { VideoStream } from "../types";
-import { scheduleService } from "../service/scheduleService";
+import type { VideoStream, Channel } from "../types"; // Make sure Channel is imported
+import { scheduleService } from "../services/scheduleService";
 import { cn, toHumanReadableDuration } from "../utils/utils";
-import { summaryService } from "../service/summaryService";
+import { summaryService } from "../services/summaryService";
 import { buttonStylesBase, buttonStylesPrimaryTheme } from "../styles/styles";
 import { Icon } from "@mdi/react";
 import { mdiHeart, mdiHeartOutline } from "@mdi/js";
+import { userService } from "../services/userService";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import debounce from "lodash.debounce";
 
 function StreamDetail() {
     const [video, setVideo] = useState<VideoStream | null>(null);
     const [summary, setSummary] = useState<string | null>(null);
-    const [isFavorited, setIsFavorited] = useState(false);
     const [showSummary, setShowSummary] = useState(false);
     const [isFetching, setIsFetching] = useState(false);
 
     const { id } = useParams();
     const videoId = id ?? "";
-    
+
     const fetchInProgress = useRef(false);
+    const queryClient = useQueryClient();
 
     const onToogleShowSummary = async () => {
         setShowSummary((prev) => !prev);
@@ -44,6 +47,71 @@ function StreamDetail() {
         if (!videoId) return;
         scheduleService.getVideoById(videoId).then((data) => setVideo(data));
     }, [videoId]);
+
+    const { mutate } = useMutation({
+        mutationFn: async (newFavoriteStatus: boolean) => {
+            if (!video) throw new Error("No video loaded");
+            if (newFavoriteStatus) {
+                return userService.addToFavorites(video.channel.id);
+            } else {
+                return userService.removeFromFavorites(video.channel.id);
+            }
+        },
+        onMutate: async (newFavoriteStatus) => {
+            setVideo((prev) => {
+                if (!prev) return prev;
+                return {
+                    ...prev,
+                    channel: { ...prev.channel, favorite: newFavoriteStatus },
+                };
+            });
+
+            queryClient.setQueryData(["channels"], (old: Channel[] = []) =>
+                old.map((c) =>
+                    c.id === video?.channel.id
+                        ? { ...c, favorite: newFavoriteStatus }
+                        : c,
+                ),
+            );
+        },
+        onError: (_, newFavoriteStatus) => {
+            setVideo((prev) => {
+                if (!prev) return prev;
+                return {
+                    ...prev,
+                    channel: { ...prev.channel, favorite: !newFavoriteStatus },
+                };
+            });
+        },
+    });
+
+    const debouncedToggle = useMemo(
+        () =>
+            debounce((status: boolean) => {
+                mutate(status);
+            }, 500),
+        [mutate],
+    );
+
+    const handleFavoriteToggle = useCallback(() => {
+        if (!video) return;
+        const newStatus = !video.channel.favorite;
+
+        setVideo((prev) => {
+            if (!prev) return prev;
+            return {
+                ...prev,
+                channel: { ...prev.channel, favorite: newStatus },
+            };
+        });
+        debouncedToggle(newStatus);
+    }, [video, debouncedToggle]);
+
+    useEffect(() => {
+        return () => {
+            debouncedToggle.cancel();
+        };
+    }, [debouncedToggle]);
 
     if (!videoId) {
         return (
@@ -71,7 +139,7 @@ function StreamDetail() {
                 referrerPolicy='strict-origin-when-cross-origin'
                 allowFullScreen></iframe>
             <h2 className='text-3xl font-bold mt-4 gap-4'>{video?.title}</h2>
-            
+
             <div className='flex items-center gap-2'>
                 <a
                     href={`https://www.youtube.com/channel/${video.channel.id}`}
@@ -83,19 +151,28 @@ function StreamDetail() {
                         src={video.channel.photo}
                         alt={video.channel.englishName || video.channel.name}
                     />
-                    <p className='text-lg text-gray-600'>{`${video.channel.englishName || video.channel.name}`}</p>
+                    <p className='text-lg text-gray-600 font-bold'>{`${video.channel.englishName || video.channel.name}`}</p>
                 </a>
+
                 <button
                     className={`${cn(buttonStylesBase, "shrink-0")}`}
-                    onClick={() => setIsFavorited(!isFavorited)}>
-                    {isFavorited ? (
-                        <Icon path={mdiHeartOutline} size={1} className='text-red-500' />
+                    onClick={handleFavoriteToggle}>
+                    {video.channel.favorite ? (
+                        <Icon
+                            path={mdiHeart}
+                            size={1}
+                            className='text-red-500'
+                        />
                     ) : (
-                        <Icon path={mdiHeart} size={1} className='text-red-500' />
+                        <Icon
+                            path={mdiHeartOutline}
+                            size={1}
+                            className='text-red-500'
+                        />
                     )}
                 </button>
             </div>
-            
+
             <p className='text-sm text-gray-500 mt-1'>
                 {`${
                     video.status === "live"
@@ -118,11 +195,13 @@ function StreamDetail() {
                             {showSummary ? "Hide" : "Show"}
                         </button>
                     </div>
-                    
+
                     {showSummary && (
                         <div className='text-gray-700 whitespace-pre-wrap mt-4'>
                             {isFetching ? (
-                                <p className="animate-pulse">Fetching summary...</p>
+                                <p className='animate-pulse'>
+                                    Fetching summary...
+                                </p>
                             ) : summary ? (
                                 <Markdown>{summary}</Markdown>
                             ) : (

@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 import StreamItem from "./StreamItem";
-import { scheduleService } from "../service/scheduleService";
+import { scheduleService } from "../services/scheduleService";
 
 function StreamList({ isAuthenticated }: { isAuthenticated: boolean }) {
     const observerTarget = useRef<HTMLDivElement>(null);
