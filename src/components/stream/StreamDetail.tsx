@@ -1,14 +1,14 @@
 import { useEffect, useState, useRef, useMemo, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import Markdown from "react-markdown";
-import type { VideoStream, Channel } from "../types"; // Make sure Channel is imported
-import { scheduleService } from "../services/scheduleService";
-import { cn, toHumanReadableDuration } from "../utils/utils";
-import { summaryService } from "../services/summaryService";
-import { buttonStylesBase, buttonStylesPrimaryTheme } from "../styles/styles";
+import type { VideoStream, Channel } from "../../types";
+import { scheduleService } from "../../services/scheduleService";
+import { cn, toHumanReadableDuration } from "../../utils/utils";
+import { summaryService } from "../../services/summaryService";
+import { buttonStylesBase, buttonStylesPrimaryTheme } from "../../styles/styles";
 import { Icon } from "@mdi/react";
 import { mdiHeart, mdiHeartOutline } from "@mdi/js";
-import { userService } from "../services/userService";
+import { userService } from "../../services/userService";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import debounce from "lodash.debounce";
 

@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
-import type { VideoStream } from "../types";
-import { toHumanReadableDuration } from "../utils/utils";
+import type { VideoStream } from "../../types";
+import { toHumanReadableDuration } from "../../utils/utils";
 
 function StreamItem({ video, isAuthenticated }: { video: VideoStream; isAuthenticated: boolean }) {
     const innerContent = (

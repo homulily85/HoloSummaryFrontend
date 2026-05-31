@@ -1,8 +1,8 @@
 import { Icon } from "@mdi/react";
-import type { Channel } from "../types";
+import type { Channel } from "../../types";
 import { mdiHeart, mdiHeartOutline } from "@mdi/js";
 import { useCallback, useState, useEffect, useMemo } from "react";
-import { userService } from "../services/userService";
+import { userService } from "../../services/userService";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import debounce from "lodash.debounce";
 

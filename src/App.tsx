@@ -1,14 +1,14 @@
 import { useCallback, useState, useEffect } from "react";
 import { useNavigate, Routes, Route, Navigate } from "react-router-dom";
 import Sidebar from "./components/Sidebar";
-import StreamList from "./components/StreamList";
+import StreamList from "./components/stream/StreamList";
 import Topbar from "./components/Topbar";
 import Login from "./components/Login";
 import { setAccessToken } from "./utils/apiClient";
 import { cn } from "./utils/utils";
 import axios from "axios";
-import StreamDetail from "./components/StreamDetail";
-import ChannelList from "./components/ChannelList";
+import StreamDetail from "./components/stream/StreamDetail";
+import ChannelList from "./components/channel/ChannelList";
 
 function App() {
     const [showSidebarOnMobile, setShowSidebarOnMobile] = useState(false);

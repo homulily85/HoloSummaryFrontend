@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { channelService } from "../services/channelService";
+import { channelService } from "../../services/channelService";
 import { useQuery } from "@tanstack/react-query";
 import ChannelItem from "./ChannelItem";
 
