@@ -3,7 +3,7 @@ import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 import VideoItem from "./VideoItem";
 import { scheduleService } from "../../services/scheduleService";
 
-function VideoList({ isAuthenticated }: { isAuthenticated: boolean}) {
+function VideoList({ isAuthenticated }: { isAuthenticated: boolean }) {
     const observerTarget = useRef<HTMLDivElement>(null);
 
     const { data: liveStreams = [] } = useQuery({
@@ -23,16 +23,39 @@ function VideoList({ isAuthenticated }: { isAuthenticated: boolean}) {
         isFetchingNextPage,
     } = useInfiniteQuery({
         queryKey: ["streams", "past"],
-        queryFn: ({ pageParam }) => 
-            scheduleService.getSchedule("past", "availableAt", "desc", 25, pageParam),
+        queryFn: ({ pageParam }) =>
+            scheduleService.getSchedule("past", "availableAt", "desc", 25, pageParam as number),
         initialPageParam: 0,
         getNextPageParam: (lastPage, allPages) => {
             return lastPage.length === 25 ? allPages.length : undefined;
         },
     });
 
-    // Flatten the pages array into a single array of streams
     const pastStreams = pastStreamsData?.pages.flat() || [];
+
+    const groupedPastStreams = pastStreams.reduce((acc, video) => {
+        // Format the date to a readable string in the user's local timezone
+        const dateStr = video.availableAt 
+            ? new Date(video.availableAt).toLocaleDateString(undefined, {
+                  weekday: 'long',
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+              })
+            : "Unknown Date";
+
+        const lastGroup = acc[acc.length - 1];
+
+        // If the current video's date matches the last group's date, add it to that group
+        if (lastGroup && lastGroup.date === dateStr) {
+            lastGroup.videos.push(video);
+        } else {
+            // Otherwise, create a new date group
+            acc.push({ date: dateStr, videos: [video] });
+        }
+        
+        return acc;
+    }, [] as { date: string; videos: typeof pastStreams }[]);
 
     // Set up the Intersection Observer for Infinite Scrolling
     useEffect(() => {
@@ -57,45 +80,61 @@ function VideoList({ isAuthenticated }: { isAuthenticated: boolean}) {
 
     return (
         <div className='p-4'>
-            <h2 className='text-2xl font-bold mb-4'>{`Live (${liveStreams.length})`}</h2>
-            <div className='grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-8'>
-                {liveStreams.map((stream) => (
-                    <VideoItem
-                        key={stream.id}
-                        video={stream}
-                        isAuthenticated={isAuthenticated}
-                    />
-                ))}
-            </div>
+            {liveStreams.length > 0 && (
+                <>
+                    <h2 className='text-2xl font-bold mb-4'>{`Live (${liveStreams.length})`}</h2>
+                    <div className='grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-8'>
+                        {liveStreams.map((stream) => (
+                            <VideoItem
+                                key={stream.id}
+                                video={stream}
+                                isAuthenticated={isAuthenticated}
+                            />
+                        ))}
+                    </div>
+                </>
+            )}
 
-            <h2 className='text-2xl font-bold mb-4'>{`Upcoming (${upcomingStreams.length})`}</h2>
-            <div className='grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-8'>
-                {upcomingStreams.map((stream) => (
-                    <VideoItem
-                        key={stream.id}
-                        video={stream}
-                        isAuthenticated={isAuthenticated}
-                    />
-                ))}
-            </div>
+            {upcomingStreams.length > 0 && (
+                <>
+                    <h2 className='text-2xl font-bold mb-4'>{`Upcoming (${upcomingStreams.length})`}</h2>
+                    <div className='grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-8'>
+                        {upcomingStreams.map((stream) => (
+                            <VideoItem
+                                key={stream.id}
+                                video={stream}
+                                isAuthenticated={isAuthenticated}
+                            />
+                        ))}
+                    </div>
+                </>
+            )}
 
             <h2 className='text-2xl font-bold mb-4'>Past</h2>
-            <div className='grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-4'>
-                {pastStreams.map((stream) => (
-                    <VideoItem
-                        key={stream.id}
-                        video={stream}
-                        isAuthenticated={isAuthenticated}
-                    />
-                ))}
-            </div>
+            
+            {groupedPastStreams.map((group, index) => (
+                <div key={group.date || index} className="mb-8">
+                    <h3 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">
+                        {group.date}
+                    </h3>
+                    <div className='grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-4'>
+                        {group.videos.map((stream) => (
+                            <VideoItem
+                                key={stream.id}
+                                video={stream}
+                                isAuthenticated={isAuthenticated}
+                            />
+                        ))}
+                    </div>
+                </div>
+            ))}
 
             <div
                 ref={observerTarget}
                 className='w-full flex justify-center p-4 mt-4 h-12'>
                 {isFetchingNextPage && (
                     <p className='text-gray-500 font-medium'>
-                        Loading more streams...
+                        Loading more videos...
                     </p>
                 )}
             </div>

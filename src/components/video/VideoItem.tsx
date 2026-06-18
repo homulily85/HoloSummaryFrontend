@@ -16,7 +16,7 @@ function VideoItem({ video, isAuthenticated }: { video: Video; isAuthenticated: 
                     {toHumanReadableDuration(video.duration)}
                 </div>
             </div>
-            <h3 className='text-lg font-semibold line-clamp-2 overflow-hidden'>
+            <h3 className='text-lg font-semibold line-clamp-2 overflow-hidden' title={video.title}>
                 {video.title}
             </h3>
             <p className='text-sm font-semibold text-gray-600'>
