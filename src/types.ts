@@ -21,7 +21,6 @@ export const ChannelSchema = z.object({
     name: z.string(),
     englishName: z.string().nullable(),
     photo: z.string(),
-    favorite: z.boolean(),
     group: z.object({
         name: z.string(),
     }),

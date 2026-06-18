@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { channelService } from "../../services/channelService";
 import { useQuery } from "@tanstack/react-query";
 import ChannelItem from "./ChannelItem";
@@ -6,17 +6,15 @@ import ChannelItem from "./ChannelItem";
 function ChannelList({ isAuthenticated }: { isAuthenticated: boolean }) {
     const [activeTab, setActiveTab] = useState<"all" | "favourite">("all");
 
-    const { data: channels = [] } = useQuery({
-        queryFn: () => channelService.getChannels(),
-        queryKey: ["channels"],
+    const { data: allChannels = [] } = useQuery({
+        queryFn: () => channelService.getChannels(false),
+        queryKey: ["channels", "all"],
     });
 
-    const displayedChannels = useMemo(() => {
-        if (activeTab === "favourite") {
-            return channels.filter((channel) => channel.favorite);
-        }
-        return channels;
-    }, [channels, activeTab]);
+    const { data: favoriteChannels = [] } = useQuery({
+        queryFn: () => channelService.getChannels(true),
+        queryKey: ["channels", "favourite"],
+    });
 
     return (
         <div className='flex flex-col'>
@@ -35,13 +33,23 @@ function ChannelList({ isAuthenticated }: { isAuthenticated: boolean }) {
                 </div>
             )}
 
-            {displayedChannels.map((channel) => (
-                <ChannelItem
-                    channel={channel}
-                    isAuthenticated={isAuthenticated}
-                    key={channel.id}
-                />
-            ))}
+            {activeTab == "all" &&
+                allChannels.map((channel) => (
+                    <ChannelItem
+                        channel={channel}
+                        isAuthenticated={isAuthenticated}
+                        key={channel.id}
+                    />
+                ))}
+
+            {activeTab == "favourite" &&
+                favoriteChannels.map((channel) => (
+                    <ChannelItem
+                        channel={channel}
+                        isAuthenticated={isAuthenticated}
+                        key={channel.id}
+                    />
+                ))}
         </div>
     );
 }

@@ -5,24 +5,37 @@ import type { VideoStream, Channel } from "../../types";
 import { scheduleService } from "../../services/scheduleService";
 import { cn, toHumanReadableDuration } from "../../utils/utils";
 import { summaryService } from "../../services/summaryService";
-import { buttonStylesBase, buttonStylesPrimaryTheme } from "../../styles/styles";
+import {
+    buttonStylesBase,
+    buttonStylesPrimaryTheme,
+} from "../../styles/styles";
 import { Icon } from "@mdi/react";
 import { mdiHeart, mdiHeartOutline } from "@mdi/js";
 import { userService } from "../../services/userService";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import debounce from "lodash.debounce";
 
-function StreamDetail() {
+function VideoDetail() {
+    const queryClient = useQueryClient();
+
     const [video, setVideo] = useState<VideoStream | null>(null);
     const [summary, setSummary] = useState<string | null>(null);
     const [showSummary, setShowSummary] = useState(false);
     const [isFetching, setIsFetching] = useState(false);
 
+    const favoriteChannels: Channel[] | undefined = queryClient.getQueryData([
+        "channels",
+        "favourite",
+    ]);
+
+    const [isFavorite, setIsFavorite] = useState(
+        favoriteChannels?.some((c) => c.id === video?.channel.id) ?? false,
+    );
+
     const { id } = useParams();
     const videoId = id ?? "";
 
     const fetchInProgress = useRef(false);
-    const queryClient = useQueryClient();
 
     const onToogleShowSummary = async () => {
         setShowSummary((prev) => !prev);
@@ -45,8 +58,25 @@ function StreamDetail() {
 
     useEffect(() => {
         if (!videoId) return;
-        scheduleService.getVideoById(videoId).then((data) => setVideo(data));
+
+        let isMounted = true;
+        scheduleService.getVideoById(videoId).then((data) => {
+            if (isMounted) setVideo(data);
+        });
+
+        return () => {
+            isMounted = false;
+        };
     }, [videoId]);
+
+    useEffect(() => {
+        if (video && favoriteChannels) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
+            setIsFavorite(
+                favoriteChannels.some((c) => c.id === video.channel.id),
+            );
+        }
+    }, [video, favoriteChannels]);
 
     const { mutate } = useMutation({
         mutationFn: async (newFavoriteStatus: boolean) => {
@@ -58,30 +88,31 @@ function StreamDetail() {
             }
         },
         onMutate: async (newFavoriteStatus) => {
-            setVideo((prev) => {
-                if (!prev) return prev;
-                return {
-                    ...prev,
-                    channel: { ...prev.channel, favorite: newFavoriteStatus },
-                };
+            await queryClient.cancelQueries({
+                queryKey: ["channels", "favourite"],
             });
 
-            queryClient.setQueryData(["channels"], (old: Channel[] = []) =>
-                old.map((c) =>
-                    c.id === video?.channel.id
-                        ? { ...c, favorite: newFavoriteStatus }
-                        : c,
-                ),
+            queryClient.setQueryData(
+                ["channels", "favourite"],
+                (old: Channel[] = []) => {
+                    if (newFavoriteStatus) {
+                        return [...old, video?.channel];
+                    } else {
+                        return old.filter((c) => c.id !== video?.channel.id);
+                    }
+                },
             );
+
+            return { favoriteChannels };
         },
-        onError: (_, newFavoriteStatus) => {
-            setVideo((prev) => {
-                if (!prev) return prev;
-                return {
-                    ...prev,
-                    channel: { ...prev.channel, favorite: !newFavoriteStatus },
-                };
-            });
+        onError: (_, newFavoriteStatus, context) => {
+            if (context?.favoriteChannels) {
+                queryClient.setQueryData(
+                    ["channels"],
+                    context.favoriteChannels,
+                );
+            }
+            setIsFavorite(!newFavoriteStatus);
         },
     });
 
@@ -95,17 +126,12 @@ function StreamDetail() {
 
     const handleFavoriteToggle = useCallback(() => {
         if (!video) return;
-        const newStatus = !video.channel.favorite;
+        const newStatus = !isFavorite;
 
-        setVideo((prev) => {
-            if (!prev) return prev;
-            return {
-                ...prev,
-                channel: { ...prev.channel, favorite: newStatus },
-            };
-        });
+        setIsFavorite(newStatus);
+
         debouncedToggle(newStatus);
-    }, [video, debouncedToggle]);
+    }, [video, isFavorite, debouncedToggle]);
 
     useEffect(() => {
         return () => {
@@ -157,7 +183,7 @@ function StreamDetail() {
                 <button
                     className={`${cn(buttonStylesBase, "shrink-0")}`}
                     onClick={handleFavoriteToggle}>
-                    {video.channel.favorite ? (
+                    {isFavorite ? (
                         <Icon
                             path={mdiHeart}
                             size={1}
@@ -215,4 +241,4 @@ function StreamDetail() {
     );
 }
 
-export default StreamDetail;
+export default VideoDetail;

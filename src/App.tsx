@@ -7,7 +7,7 @@ import Login from "./components/Login";
 import { setAccessToken } from "./utils/apiClient";
 import { cn } from "./utils/utils";
 import axios from "axios";
-import StreamDetail from "./components/stream/StreamDetail";
+import VideoDetail from "./components/stream/VideoDetail";
 import ChannelList from "./components/channel/ChannelList";
 
 function App() {
@@ -113,7 +113,7 @@ function App() {
                             <Route path='/login' element={<Login />} />
                         )}
 
-                        <Route path='/stream/:id' element={<StreamDetail />} />
+                        <Route path='/stream/:id' element={<VideoDetail />} />
                         <Route
                             path='*'
                             element={<Navigate to='/home' replace />}

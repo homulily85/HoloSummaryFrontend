@@ -15,12 +15,14 @@ function ChannelItem({
 }) {
     const queryClient = useQueryClient();
 
-    const [isFavorite, setIsFavorite] = useState(channel.favorite);
+    const favoriteChannels: Channel[] | undefined = queryClient.getQueryData([
+        "channels",
+        "favourite",
+    ]);
 
-    useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setIsFavorite(channel.favorite);
-    }, [channel.favorite]);
+    const [isFavorite, setIsFavorite] = useState(
+        favoriteChannels?.some((c) => c.id === channel.id) ?? false,
+    );
 
     const { mutate } = useMutation({
         mutationFn: async (newFavoriteStatus: boolean) => {
@@ -31,24 +33,28 @@ function ChannelItem({
             }
         },
         onMutate: async (newFavoriteStatus) => {
-            await queryClient.cancelQueries({ queryKey: ["channels"] });
-            const previousChannels = queryClient.getQueryData(["channels"]);
+            await queryClient.cancelQueries({
+                queryKey: ["channels", "favourite"],
+            });
 
-            queryClient.setQueryData(["channels"], (old: Channel[] = []) =>
-                old.map((c) =>
-                    c.id === channel.id
-                        ? { ...c, favorite: newFavoriteStatus }
-                        : c,
-                ),
+            queryClient.setQueryData(
+                ["channels", "favourite"],
+                (old: Channel[] = []) => {
+                    if (newFavoriteStatus) {
+                        return [...old, channel];
+                    } else {
+                        return old.filter((c) => c.id !== channel.id);
+                    }
+                },
             );
 
-            return { previousChannels };
+            return { favoriteChannels };
         },
         onError: (_, newFavoriteStatus, context) => {
-            if (context?.previousChannels) {
+            if (context?.favoriteChannels) {
                 queryClient.setQueryData(
                     ["channels"],
-                    context.previousChannels,
+                    context.favoriteChannels,
                 );
             }
             setIsFavorite(!newFavoriteStatus);
@@ -98,19 +104,26 @@ function ChannelItem({
                     )}
                 </div>
             </div>
-            {isAuthenticated && <button
-                className='focus:outline-none hover:bg-gray-200 active:bg-gray-300 p-2'
-                onClick={handleFavoriteToggle}>
-                {isFavorite ? (
-                    <Icon path={mdiHeart} size={1} className='text-red-500' />
-                ) : (
-                    <Icon
-                        path={mdiHeartOutline}
-                        size={1}
-                        className='text-red-500'
-                    />
-                )}
-            </button>}
+
+            {isAuthenticated && (
+                <button
+                    className='focus:outline-none hover:bg-gray-200 active:bg-gray-300 p-2'
+                    onClick={handleFavoriteToggle}>
+                    {isFavorite ? (
+                        <Icon
+                            path={mdiHeart}
+                            size={1}
+                            className='text-red-500'
+                        />
+                    ) : (
+                        <Icon
+                            path={mdiHeartOutline}
+                            size={1}
+                            className='text-red-500'
+                        />
+                    )}
+                </button>
+            )}
         </div>
     );
 }

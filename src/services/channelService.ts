@@ -1,9 +1,9 @@
 import { ChannelSchema } from "../types";
 import { apiClient } from "../utils/apiClient";
 
-const getAllChannels = async () => {
+const getAllChannels = async (favourite: boolean) => {
     const response = await apiClient
-        .get("/channels")
+        .get("/channels", { params: { favourite } })
         .catch((error: unknown) => {
             console.error("Error fetching channels:", error);
             return { data: [] };
