@@ -26,7 +26,7 @@ export const ChannelSchema = z.object({
     }),
 });
 
-export const VideoStreamSchema = z.object({
+export const VideoSchema = z.object({
     id: z.string(),
     title: z.string(),
     type: z.string(),
@@ -38,10 +38,10 @@ export const VideoStreamSchema = z.object({
 });
 
 export const ChannelPageSchema = createPageSchema(ChannelSchema);
-export const VideoStreamPageSchema = createPageSchema(VideoStreamSchema);
+export const VideoPageSchema = createPageSchema(VideoSchema);
 
 export type Channel = z.infer<typeof ChannelSchema>;
 export type ChannelPage = z.infer<typeof ChannelPageSchema>;
-export type VideoStream = z.infer<typeof VideoStreamSchema>;
-export type VideoStreamPage = z.infer<typeof VideoStreamPageSchema>;
+export type Video = z.infer<typeof VideoSchema>;
+export type VideoPage = z.infer<typeof VideoPageSchema>;
 export type PageMetadata = z.infer<typeof PageMetadataSchema>;

@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
-import type { VideoStream } from "../../types";
+import type { Video } from "../../types";
 import { toHumanReadableDuration } from "../../utils/utils";
 
-function StreamItem({ video, isAuthenticated }: { video: VideoStream; isAuthenticated: boolean }) {
+function VideoItem({ video, isAuthenticated }: { video: Video; isAuthenticated: boolean }) {
     const innerContent = (
         <div className='flex flex-col gap-2 p-2 hover:bg-gray-100 rounded-md cursor-pointer h-full'>
             <div className='relative aspect-video rounded-md overflow-hidden mb-2'>
@@ -33,10 +33,9 @@ function StreamItem({ video, isAuthenticated }: { video: VideoStream; isAuthenti
         </div>
     );
 
-    // 3. Conditionally route based on auth status
     if (isAuthenticated) {
         return (
-            <Link to={`/stream/${video.id}`} className="block h-full">
+            <Link to={`/video/${video.id}`} className="block h-full">
                 {innerContent}
             </Link>
         );
@@ -53,4 +52,4 @@ function StreamItem({ video, isAuthenticated }: { video: VideoStream; isAuthenti
     );
 }
 
-export default StreamItem;
+export default VideoItem;

@@ -1,13 +1,13 @@
 import { useCallback, useState, useEffect } from "react";
 import { useNavigate, Routes, Route, Navigate } from "react-router-dom";
 import Sidebar from "./components/Sidebar";
-import StreamList from "./components/stream/StreamList";
+import VideoList from "./components/video/VideoList";
 import Topbar from "./components/Topbar";
 import Login from "./components/Login";
 import { setAccessToken } from "./utils/apiClient";
 import { cn } from "./utils/utils";
 import axios from "axios";
-import VideoDetail from "./components/stream/VideoDetail";
+import VideoDetail from "./components/video/VideoDetail";
 import ChannelList from "./components/channel/ChannelList";
 
 function App() {
@@ -100,7 +100,7 @@ function App() {
                         <Route
                             path='/home'
                             element={
-                                <StreamList isAuthenticated={isAuthenticated} />
+                                <VideoList isAuthenticated={isAuthenticated} />
                             }
                         />
 
@@ -113,7 +113,13 @@ function App() {
                             <Route path='/login' element={<Login />} />
                         )}
 
-                        <Route path='/stream/:id' element={<VideoDetail />} />
+                        {isAuthenticated && (
+                            <Route
+                                path='/video/:id'
+                                element={<VideoDetail />}
+                            />
+                        )}
+
                         <Route
                             path='*'
                             element={<Navigate to='/home' replace />}
@@ -122,7 +128,10 @@ function App() {
                         <Route
                             path='/channels'
                             element={
-                                <ChannelList isAuthenticated = {isAuthenticated}></ChannelList>
+                                <ChannelList
+                                    isAuthenticated={
+                                        isAuthenticated
+                                    }></ChannelList>
                             }
                         />
                     </Routes>

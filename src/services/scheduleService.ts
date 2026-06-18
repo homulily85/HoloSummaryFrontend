@@ -1,4 +1,4 @@
-import { VideoStreamPageSchema, VideoStreamSchema } from "../types";
+import { VideoPageSchema, VideoSchema } from "../types";
 import { apiClient } from "../utils/apiClient";
 
 const getSchedule = async (
@@ -21,7 +21,7 @@ const getSchedule = async (
                 } 
             };
         });
-    return VideoStreamPageSchema.parse(response.data).content || [];
+    return VideoPageSchema.parse(response.data).content || [];
 };
 
 const getVideoById = async (id: string) => {
@@ -32,7 +32,7 @@ const getVideoById = async (id: string) => {
             return { data: null };
         });
 
-    return response.data ? VideoStreamSchema.parse(response.data) : null;
+    return response.data ? VideoSchema.parse(response.data) : null;
 };
 
 export const scheduleService = {

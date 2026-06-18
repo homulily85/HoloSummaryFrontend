@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useMemo, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import Markdown from "react-markdown";
-import type { VideoStream, Channel } from "../../types";
+import type { Video, Channel } from "../../types";
 import { scheduleService } from "../../services/scheduleService";
 import { cn, toHumanReadableDuration } from "../../utils/utils";
 import { summaryService } from "../../services/summaryService";
@@ -18,7 +18,7 @@ import debounce from "lodash.debounce";
 function VideoDetail() {
     const queryClient = useQueryClient();
 
-    const [video, setVideo] = useState<VideoStream | null>(null);
+    const [video, setVideo] = useState<Video | null>(null);
     const [summary, setSummary] = useState<string | null>(null);
     const [showSummary, setShowSummary] = useState(false);
     const [isFetching, setIsFetching] = useState(false);

@@ -1,9 +1,9 @@
 import { useEffect, useRef } from "react";
 import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
-import StreamItem from "./StreamItem";
+import VideoItem from "./VideoItem";
 import { scheduleService } from "../../services/scheduleService";
 
-function StreamList({ isAuthenticated }: { isAuthenticated: boolean}) {
+function VideoList({ isAuthenticated }: { isAuthenticated: boolean}) {
     const observerTarget = useRef<HTMLDivElement>(null);
 
     const { data: liveStreams = [] } = useQuery({
@@ -60,7 +60,7 @@ function StreamList({ isAuthenticated }: { isAuthenticated: boolean}) {
             <h2 className='text-2xl font-bold mb-4'>{`Live (${liveStreams.length})`}</h2>
             <div className='grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-8'>
                 {liveStreams.map((stream) => (
-                    <StreamItem
+                    <VideoItem
                         key={stream.id}
                         video={stream}
                         isAuthenticated={isAuthenticated}
@@ -71,7 +71,7 @@ function StreamList({ isAuthenticated }: { isAuthenticated: boolean}) {
             <h2 className='text-2xl font-bold mb-4'>{`Upcoming (${upcomingStreams.length})`}</h2>
             <div className='grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-8'>
                 {upcomingStreams.map((stream) => (
-                    <StreamItem
+                    <VideoItem
                         key={stream.id}
                         video={stream}
                         isAuthenticated={isAuthenticated}
@@ -82,7 +82,7 @@ function StreamList({ isAuthenticated }: { isAuthenticated: boolean}) {
             <h2 className='text-2xl font-bold mb-4'>Past</h2>
             <div className='grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-4'>
                 {pastStreams.map((stream) => (
-                    <StreamItem
+                    <VideoItem
                         key={stream.id}
                         video={stream}
                         isAuthenticated={isAuthenticated}
@@ -103,4 +103,4 @@ function StreamList({ isAuthenticated }: { isAuthenticated: boolean}) {
     );
 }
 
-export default StreamList;
+export default VideoList;
