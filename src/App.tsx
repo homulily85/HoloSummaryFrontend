@@ -103,7 +103,7 @@ function App() {
                                 <StreamList isAuthenticated={isAuthenticated} />
                             }
                         />
-                        
+
                         {isAuthenticated ? (
                             <Route
                                 path='/login'
@@ -119,7 +119,12 @@ function App() {
                             element={<Navigate to='/home' replace />}
                         />
 
-                        <Route path='/channels' element={<ChannelList />} />
+                        <Route
+                            path='/channels'
+                            element={
+                                <ChannelList isAuthenticated = {isAuthenticated}></ChannelList>
+                            }
+                        />
                     </Routes>
                 </div>
             </div>

@@ -1,5 +1,10 @@
 import { Icon } from "@mdi/react";
-import { mdiHomeVariantOutline, mdiHeart, mdiLogout, mdiAccountGroup } from "@mdi/js";
+import {
+    mdiHomeVariantOutline,
+    mdiHeart,
+    mdiLogout,
+    mdiAccountGroup,
+} from "@mdi/js";
 import { buttonStylesPrimaryTheme } from "../styles/styles";
 import { cn } from "../utils/utils";
 
@@ -10,7 +15,12 @@ interface SidebarProps {
     isAuthenticated?: boolean | null;
 }
 
-function Sidebar({ onHomeClick, onChannelsClick, onLogoutClick, isAuthenticated }: SidebarProps) {
+function Sidebar({
+    onHomeClick,
+    onChannelsClick,
+    onLogoutClick,
+    isAuthenticated,
+}: SidebarProps) {
     return (
         <div className='p-4 border-r border-gray-300 h-full flex flex-col justify-between'>
             <ul className='flex flex-col gap-2 sm:text-base font-medium'>
@@ -26,17 +36,20 @@ function Sidebar({ onHomeClick, onChannelsClick, onLogoutClick, isAuthenticated 
                         <p className='hidden sm:block'>Home</p>
                     </button>
                 </li>
-                <li>
-                    <button
-                        type='button'
-                        className={cn(
-                            buttonStylesPrimaryTheme,
-                            "w-full justify-center sm:justify-start",
-                        )}>
-                        <Icon path={mdiHeart} size={1} />
-                        <p className='hidden sm:block'>Favorites</p>
-                    </button>
-                </li>
+
+                {isAuthenticated && (
+                    <li>
+                        <button
+                            type='button'
+                            className={cn(
+                                buttonStylesPrimaryTheme,
+                                "w-full justify-center sm:justify-start",
+                            )}>
+                            <Icon path={mdiHeart} size={1} />
+                            <p className='hidden sm:block'>Favorites</p>
+                        </button>
+                    </li>
+                )}
 
                 <li>
                     <button
@@ -50,7 +63,6 @@ function Sidebar({ onHomeClick, onChannelsClick, onLogoutClick, isAuthenticated 
                         <p className='hidden sm:block'>Channels</p>
                     </button>
                 </li>
-
             </ul>
 
             {isAuthenticated && (

@@ -6,7 +6,13 @@ import { userService } from "../../services/userService";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import debounce from "lodash.debounce";
 
-function ChannelItem({ channel }: { channel: Channel }) {
+function ChannelItem({
+    channel,
+    isAuthenticated,
+}: {
+    channel: Channel;
+    isAuthenticated: boolean;
+}) {
     const queryClient = useQueryClient();
 
     const [isFavorite, setIsFavorite] = useState(channel.favorite);
@@ -92,7 +98,7 @@ function ChannelItem({ channel }: { channel: Channel }) {
                     )}
                 </div>
             </div>
-            <button
+            {isAuthenticated && <button
                 className='focus:outline-none hover:bg-gray-200 active:bg-gray-300 p-2'
                 onClick={handleFavoriteToggle}>
                 {isFavorite ? (
@@ -104,7 +110,7 @@ function ChannelItem({ channel }: { channel: Channel }) {
                         className='text-red-500'
                     />
                 )}
-            </button>
+            </button>}
         </div>
     );
 }
