@@ -75,6 +75,10 @@ function App() {
                             navigate("/home");
                             setShowSidebarOnMobile(false);
                         }}
+                        onFavouriteClick={() => {
+                            navigate("/favourite");
+                            setShowSidebarOnMobile(false);
+                        }}
                         onChannelsClick={() => {
                             navigate("/channels");
                             setShowSidebarOnMobile(false);
@@ -100,7 +104,20 @@ function App() {
                         <Route
                             path='/home'
                             element={
-                                <VideoList isAuthenticated={isAuthenticated} />
+                                <VideoList
+                                    isAuthenticated={isAuthenticated}
+                                    isFavourite={false}
+                                />
+                            }
+                        />
+
+                        <Route
+                            path='/favourite'
+                            element={
+                                <VideoList
+                                    isAuthenticated={isAuthenticated}
+                                    isFavourite={true}
+                                />
                             }
                         />
 

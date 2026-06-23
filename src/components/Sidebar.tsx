@@ -10,6 +10,7 @@ import { cn } from "../utils/utils";
 
 interface SidebarProps {
     onHomeClick?: () => void;
+    onFavouriteClick?: () => void;
     onChannelsClick?: () => void;
     onLogoutClick?: () => void;
     isAuthenticated?: boolean | null;
@@ -17,6 +18,7 @@ interface SidebarProps {
 
 function Sidebar({
     onHomeClick,
+    onFavouriteClick,
     onChannelsClick,
     onLogoutClick,
     isAuthenticated,
@@ -41,6 +43,7 @@ function Sidebar({
                     <li>
                         <button
                             type='button'
+                            onClick={onFavouriteClick}
                             className={cn(
                                 buttonStylesPrimaryTheme,
                                 "w-full justify-center sm:justify-start",
