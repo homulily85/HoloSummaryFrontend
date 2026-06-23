@@ -37,7 +37,7 @@ function VideoDetail() {
 
     const fetchInProgress = useRef(false);
 
-    const onToogleShowSummary = async () => {
+const onToogleShowSummary = async () => {
         setShowSummary((prev) => !prev);
 
         if (summary || fetchInProgress.current) return;
@@ -46,8 +46,20 @@ function VideoDetail() {
         setIsFetching(true);
 
         try {
-            const data = await summaryService.getSummary(videoId);
-            setSummary(data);
+            let response = await summaryService.getSummary(videoId);
+
+            while (response.state === "waiting") {
+                await new Promise((resolve) => setTimeout(resolve, 5000));
+                
+                response = await summaryService.getSummary(videoId);
+            }
+
+            if (response.state === "finished") {
+                setSummary(response.data);
+            } else if (response.state === "failed") {
+                console.error("Summary generation failed on the server.");
+            }
+
         } catch (error) {
             console.error("Failed to fetch summary:", error);
         } finally {
