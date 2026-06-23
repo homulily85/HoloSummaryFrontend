@@ -12,8 +12,9 @@ import {
 import { Icon } from "@mdi/react";
 import { mdiHeart, mdiHeartOutline } from "@mdi/js";
 import { userService } from "../../services/userService";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import debounce from "lodash.debounce";
+import { channelService } from "../../services/channelService";
 
 function VideoDetail() {
     const queryClient = useQueryClient();
@@ -23,10 +24,10 @@ function VideoDetail() {
     const [showSummary, setShowSummary] = useState(false);
     const [isFetching, setIsFetching] = useState(false);
 
-    const favoriteChannels: Channel[] | undefined = queryClient.getQueryData([
-        "channels",
-        "favourite",
-    ]);
+    const { data: favoriteChannels = [] } = useQuery({
+        queryKey: ["channels", "favourite"],
+        queryFn: () => channelService.getChannels(true),
+    });
 
     const [isFavorite, setIsFavorite] = useState(
         favoriteChannels?.some((c) => c.id === video?.channel.id) ?? false,
@@ -37,7 +38,7 @@ function VideoDetail() {
 
     const fetchInProgress = useRef(false);
 
-const onToogleShowSummary = async () => {
+    const onToogleShowSummary = async () => {
         setShowSummary((prev) => !prev);
 
         if (summary || fetchInProgress.current) return;
@@ -50,7 +51,7 @@ const onToogleShowSummary = async () => {
 
             while (response.state === "waiting") {
                 await new Promise((resolve) => setTimeout(resolve, 5000));
-                
+
                 response = await summaryService.getSummary(videoId);
             }
 
@@ -59,7 +60,6 @@ const onToogleShowSummary = async () => {
             } else if (response.state === "failed") {
                 console.error("Summary generation failed on the server.");
             }
-
         } catch (error) {
             console.error("Failed to fetch summary:", error);
         } finally {
