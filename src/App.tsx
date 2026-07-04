@@ -4,9 +4,8 @@ import Sidebar from "./components/Sidebar";
 import VideoList from "./components/video/VideoList";
 import Topbar from "./components/Topbar";
 import Login from "./components/Login";
-import { setAccessToken } from "./utils/apiClient";
+import { apiClient, setAccessToken } from "./utils/apiClient";
 import { cn } from "./utils/utils";
-import axios from "axios";
 import VideoDetail from "./components/video/VideoDetail";
 import ChannelList from "./components/channel/ChannelList";
 
@@ -23,8 +22,8 @@ function App() {
     }, []);
 
     useEffect(() => {
-        axios
-            .post("/api/auth/refresh", {}, { withCredentials: true })
+        apiClient
+            .post("/auth/refresh")
             .then((response) => {
                 setAccessToken(response.data.accessToken);
                 setIsAuthenticated(true);
@@ -40,7 +39,7 @@ function App() {
         setIsAuthenticated(false);
         navigate("/login");
         setShowSidebarOnMobile(false);
-        axios.post("/api/auth/logout", {}, { withCredentials: true });
+        apiClient.post("/auth/logout");
     }, [navigate]);
 
     if (isAuthenticated === null) {

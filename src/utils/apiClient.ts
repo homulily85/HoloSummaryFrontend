@@ -1,7 +1,9 @@
 import axios from "axios";
 
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
 export const apiClient = axios.create({
-    baseURL: "/api",
+    baseURL: `${backendUrl}/api`,
     withCredentials: true,
 });
 
@@ -24,7 +26,10 @@ apiClient.interceptors.request.use(
 );
 
 let isRefreshing = false;
-let failedQueue: { resolve: (token: string | null) => void; reject: (error: unknown) => void }[] = [];
+let failedQueue: {
+    resolve: (token: string | null) => void;
+    reject: (error: unknown) => void;
+}[] = [];
 
 const processQueue = (error: unknown, token: string | null = null) => {
     failedQueue.forEach((prom) => {
@@ -42,7 +47,11 @@ apiClient.interceptors.response.use(
     (response) => response,
     async (error) => {
         const originalRequest = error.config;
-        if (error.response?.status === 401 && !originalRequest._retry) {
+        if (
+            error.response?.status === 401 &&
+            !originalRequest._retry &&
+            originalRequest.url !== "/auth/refresh"
+        ) {
             if (isRefreshing) {
                 // If already refreshing, wait for it to finish
                 return new Promise((resolve, reject) => {
@@ -60,11 +69,7 @@ apiClient.interceptors.response.use(
             isRefreshing = true;
 
             try {
-                const response = await axios.post(
-                    "/api/auth/refresh",
-                    {},
-                    { withCredentials: true },
-                );
+                const response = await apiClient.post("/auth/refresh");
                 const newAccessToken = response.data.accessToken;
                 setAccessToken(newAccessToken);
 
