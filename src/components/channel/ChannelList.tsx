@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { channelService } from "../../services/channelService";
 import { useQuery } from "@tanstack/react-query";
 import ChannelItem from "./ChannelItem";
+import type { Channel } from "../../types";
 
 function ChannelList({ isAuthenticated }: { isAuthenticated: boolean }) {
     const [activeTab, setActiveTab] = useState<"all" | "favourite">("all");
@@ -15,6 +16,18 @@ function ChannelList({ isAuthenticated }: { isAuthenticated: boolean }) {
         queryFn: () => channelService.getChannels(true),
         queryKey: ["channels", "favourite"],
     });
+
+    const groupedChannels = useMemo(() => {
+        const grouped: { [key: string]: Channel[] } = {};
+        for (const channel of allChannels) {
+            if (!grouped[channel.group.name]) {
+                grouped[channel.group.name] = [channel];
+            } else {
+                grouped[channel.group.name].push(channel);
+            }
+        }
+        return grouped;
+    }, [allChannels]);
 
     return (
         <div className='flex flex-col'>
@@ -34,12 +47,17 @@ function ChannelList({ isAuthenticated }: { isAuthenticated: boolean }) {
             )}
 
             {activeTab == "all" &&
-                allChannels.map((channel) => (
-                    <ChannelItem
-                        channel={channel}
-                        isAuthenticated={isAuthenticated}
-                        key={channel.id}
-                    />
+                Object.entries(groupedChannels).map(([groupName, channels]) => (
+                    <div key={groupName} className='mb-6'>
+                        <h2 className='text-2xl font-bold p-4'>{groupName}</h2>
+                        {channels.map((channel) => (
+                            <ChannelItem
+                                channel={channel}
+                                isAuthenticated={isAuthenticated}
+                                key={channel.channelId}
+                            />
+                        ))}
+                    </div>
                 ))}
 
             {activeTab == "favourite" &&
@@ -47,7 +65,7 @@ function ChannelList({ isAuthenticated }: { isAuthenticated: boolean }) {
                     <ChannelItem
                         channel={channel}
                         isAuthenticated={isAuthenticated}
-                        key={channel.id}
+                        key={channel.channelId}
                     />
                 ))}
         </div>

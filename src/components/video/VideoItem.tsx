@@ -7,7 +7,7 @@ function VideoItem({ video, isAuthenticated }: { video: Video; isAuthenticated: 
         <div className='flex flex-col gap-2 p-2 hover:bg-gray-100 rounded-md cursor-pointer h-full'>
             <div className='relative aspect-video rounded-md overflow-hidden mb-2'>
                 <img
-                    src={`https://i.ytimg.com/vi/${video.id}/mqdefault.jpg`}
+                    src={`https://i.ytimg.com/vi/${video.videoId}/mqdefault.jpg`}
                     alt={`${video.title} Thumbnail`}
                     className='w-full h-full object-cover'
                 />
@@ -35,7 +35,7 @@ function VideoItem({ video, isAuthenticated }: { video: Video; isAuthenticated: 
 
     if (isAuthenticated) {
         return (
-            <Link to={`/video/${video.id}`} className="block h-full">
+            <Link to={`/video/${video.videoId}`} className="block h-full">
                 {innerContent}
             </Link>
         );
@@ -43,7 +43,7 @@ function VideoItem({ video, isAuthenticated }: { video: Video; isAuthenticated: 
 
     return (
         <a
-            href={`https://www.youtube.com/watch?v=${video.id}`}
+            href={`https://www.youtube.com/watch?v=${video.videoId}`}
             target='_blank'
             rel='noopener noreferrer'
             className="block h-full">

@@ -17,7 +17,7 @@ export function createPageSchema<ItemType extends z.ZodTypeAny>(
 }
 
 export const ChannelSchema = z.object({
-    id: z.string(),
+    channelId: z.string(),
     name: z.string(),
     englishName: z.string().nullable(),
     photo: z.string(),
@@ -27,7 +27,7 @@ export const ChannelSchema = z.object({
 });
 
 export const VideoSchema = z.object({
-    id: z.string(),
+    videoId: z.string(),
     title: z.string(),
     type: z.string(),
     topic: z.string().nullable(),

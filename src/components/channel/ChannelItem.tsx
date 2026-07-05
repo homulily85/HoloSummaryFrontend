@@ -21,15 +21,15 @@ function ChannelItem({
     ]);
 
     const [isFavorite, setIsFavorite] = useState(
-        favoriteChannels?.some((c) => c.id === channel.id) ?? false,
+        favoriteChannels?.some((c) => c.channelId === channel.channelId) ?? false,
     );
 
     const { mutate } = useMutation({
         mutationFn: async (newFavoriteStatus: boolean) => {
             if (newFavoriteStatus) {
-                return userService.addToFavorites(channel.id);
+                return userService.addToFavorites(channel.channelId);
             } else {
-                return userService.removeFromFavorites(channel.id);
+                return userService.removeFromFavorites(channel.channelId);
             }
         },
         onMutate: async (newFavoriteStatus) => {
@@ -43,7 +43,7 @@ function ChannelItem({
                     if (newFavoriteStatus) {
                         return [...old, channel];
                     } else {
-                        return old.filter((c) => c.id !== channel.id);
+                        return old.filter((c) => c.channelId !== channel.channelId);
                     }
                 },
             );
@@ -91,7 +91,7 @@ function ChannelItem({
                 />
                 <div className='flex flex-col justify-center'>
                     <a
-                        href={`https://youtube.com/channel/${channel.id}`}
+                        href={`https://youtube.com/channel/${channel.channelId}`}
                         target='_blank'
                         rel='noopener noreferrer'
                         className='text-lg font-medium'>

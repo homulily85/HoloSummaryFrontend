@@ -118,27 +118,28 @@ function VideoList({
             {isFavourite && isFavChannelsLoading && <p>Loading favorites...</p>}
             {liveStreams.length > 0 && (
                 <>
-                    <h2 className='text-2xl font-bold mb-4'>{`Live (${liveStreams.length})`}</h2>
+                    <h2 className='text-2xl font-bold mb-4'>{`Live (${isFavourite ? liveStreams.filter((video) => favoriteChannels.some((channel) => channel.channelId === video.channel.channelId)).length : liveStreams.length})`}</h2>
                     <div className='grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-8'>
                         {isFavourite
                             ? liveStreams
                                   .filter((video) =>
                                       favoriteChannels.some(
                                           (channel) =>
-                                              channel.id === video.channel.id,
+                                              channel.channelId ===
+                                              video.channel.channelId,
                                       ),
                                   )
-                                  .map((stream) => (
+                                  .map((video) => (
                                       <VideoItem
-                                          key={stream.id}
-                                          video={stream}
+                                          key={video.videoId}
+                                          video={video}
                                           isAuthenticated={isAuthenticated}
                                       />
                                   ))
-                            : liveStreams.map((stream) => (
+                            : liveStreams.map((video) => (
                                   <VideoItem
-                                      key={stream.id}
-                                      video={stream}
+                                      key={video.videoId}
+                                      video={video}
                                       isAuthenticated={isAuthenticated}
                                   />
                               ))}
@@ -146,29 +147,30 @@ function VideoList({
                 </>
             )}
 
-            {upcomingStreams.length > 0 && (
+            {(
                 <>
-                    <h2 className='text-2xl font-bold mb-4'>{`Upcoming (${upcomingStreams.length})`}</h2>
+                    <h2 className='text-2xl font-bold mb-4'>{`Upcoming (${isFavourite ? upcomingStreams.filter((video) => favoriteChannels.some((channel) => channel.channelId === video.channel.channelId)).length : upcomingStreams.length})`}</h2>
                     <div className='grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-8'>
                         {isFavourite
                             ? upcomingStreams
                                   .filter((video) =>
                                       favoriteChannels.some(
                                           (channel) =>
-                                              channel.id === video.channel.id,
+                                              channel.channelId ===
+                                              video.channel.channelId,
                                       ),
                                   )
-                                  .map((stream) => (
+                                  .map((video) => (
                                       <VideoItem
-                                          key={stream.id}
-                                          video={stream}
+                                          key={video.videoId}
+                                          video={video}
                                           isAuthenticated={isAuthenticated}
                                       />
                                   ))
-                            : upcomingStreams.map((stream) => (
+                            : upcomingStreams.map((video) => (
                                   <VideoItem
-                                      key={stream.id}
-                                      video={stream}
+                                      key={video.videoId}
+                                      video={video}
                                       isAuthenticated={isAuthenticated}
                                   />
                               ))}
@@ -189,20 +191,21 @@ function VideoList({
                                   .filter((video) =>
                                       favoriteChannels.some(
                                           (channel) =>
-                                              channel.id === video.channel.id,
+                                              channel.channelId ===
+                                              video.channel.channelId,
                                       ),
                                   )
-                                  .map((stream) => (
+                                  .map((video) => (
                                       <VideoItem
-                                          key={stream.id}
-                                          video={stream}
+                                          key={video.videoId}
+                                          video={video}
                                           isAuthenticated={isAuthenticated}
                                       />
                                   ))
-                            : group.videos.map((stream) => (
+                            : group.videos.map((video) => (
                                   <VideoItem
-                                      key={stream.id}
-                                      video={stream}
+                                      key={video.videoId}
+                                      video={video}
                                       isAuthenticated={isAuthenticated}
                                   />
                               ))}

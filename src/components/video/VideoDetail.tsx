@@ -30,7 +30,7 @@ function VideoDetail() {
     });
 
     const [isFavorite, setIsFavorite] = useState(
-        favoriteChannels?.some((c) => c.id === video?.channel.id) ?? false,
+        favoriteChannels?.some((c) => c.channelId === video?.channel.channelId) ?? false,
     );
 
     const { id } = useParams();
@@ -85,7 +85,7 @@ function VideoDetail() {
         if (video && favoriteChannels) {
             // eslint-disable-next-line react-hooks/set-state-in-effect
             setIsFavorite(
-                favoriteChannels.some((c) => c.id === video.channel.id),
+                favoriteChannels.some((c) => c.channelId === video.channel.channelId),
             );
         }
     }, [video, favoriteChannels]);
@@ -94,9 +94,9 @@ function VideoDetail() {
         mutationFn: async (newFavoriteStatus: boolean) => {
             if (!video) throw new Error("No video loaded");
             if (newFavoriteStatus) {
-                return userService.addToFavorites(video.channel.id);
+                return userService.addToFavorites(video.channel.channelId);
             } else {
-                return userService.removeFromFavorites(video.channel.id);
+                return userService.removeFromFavorites(video.channel.channelId);
             }
         },
         onMutate: async (newFavoriteStatus) => {
@@ -110,7 +110,7 @@ function VideoDetail() {
                     if (newFavoriteStatus) {
                         return [...old, video?.channel];
                     } else {
-                        return old.filter((c) => c.id !== video?.channel.id);
+                        return old.filter((c) => c.channelId !== video?.channel.channelId);
                     }
                 },
             );
@@ -180,7 +180,7 @@ function VideoDetail() {
 
             <div className='flex items-center gap-2'>
                 <a
-                    href={`https://www.youtube.com/channel/${video.channel.id}`}
+                    href={`https://www.youtube.com/channel/${video.channel.channelId}`}
                     target='_blank'
                     rel='noopener noreferrer'
                     className={`${cn("inline-flex w-fit items-center gap-2 p-1.5 text-gray-600", buttonStylesBase)}`}>
