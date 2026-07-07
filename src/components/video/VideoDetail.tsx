@@ -48,11 +48,13 @@ function VideoDetail() {
 
         try {
             let response = await summaryService.getSummary(videoId);
+            let isFirstRequest = true;
 
             while (response.state === "waiting") {
-                await new Promise((resolve) => setTimeout(resolve, 5000));
-
+                // For the first request, wait for 15 seconds before checking again. For subsequent requests, wait for 30 seconds.
+                await new Promise((resolve) => setTimeout(resolve, isFirstRequest ? 15000 : 30000));
                 response = await summaryService.getSummary(videoId);
+                isFirstRequest = false;
             }
 
             if (response.state === "finished") {
